@@ -16,7 +16,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="bg-white">
-        <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
         {children}
       </body>
     </html>
