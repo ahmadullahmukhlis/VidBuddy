@@ -1,4 +1,24 @@
+ "use client";
+
+import { useMemo, useState } from "react";
+
 export default function HeroSection() {
+  const [videoUrl, setVideoUrl] = useState("");
+  const encodedUrl = useMemo(() => encodeURIComponent(videoUrl.trim()), [videoUrl]);
+  const canDownload = encodedUrl.length > 0;
+
+  const handleDownload = () => {
+    if (!canDownload) return;
+    window.location.href = `/api/download?url=${encodedUrl}`;
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleDownload();
+    }
+  };
+
   return (
     <section
       className="relative overflow-hidden"
@@ -33,10 +53,16 @@ export default function HeroSection() {
               <input
                 type="text"
                 placeholder="Paste your video URL here..."
+                value={videoUrl}
+                onChange={(event) => setVideoUrl(event.target.value)}
+                onKeyDown={handleKeyDown}
                 className="flex-1 px-4 py-4 text-gray-800 outline-none rounded-xl sm:rounded-none sm:rounded-l-xl"
               />
               <button
-                className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90"
+                type="button"
+                onClick={handleDownload}
+                disabled={!canDownload}
+                className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90 disabled:opacity-50"
                 style={{ background: "#FF6B00" }}
               >
                 Download Now <i className="fas fa-download ml-2"></i>
