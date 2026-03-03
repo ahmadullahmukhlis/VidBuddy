@@ -48,7 +48,7 @@ export default function FeaturesSection() {
               <div className="w-16 h-16 rounded-xl mb-6 flex items-center justify-center" style={{ background: "#FFE4D6" }}>
                 <i className={`fas ${feature.icon} text-2xl`} style={{ color: "#FF6B00" }}></i>
               </div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-bold  mb-3">{feature.title}</h3>
               <p className="text-gray-600">{feature.description}</p>
               <div className="mt-4 flex items-center gap-1 text-sm" style={{ color: "#FF6B00" }}>
                 <span>Learn more</span>
