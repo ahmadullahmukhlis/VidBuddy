@@ -52,7 +52,8 @@ export default function HeroSection() {
             >
               <input
                 type="text"
-                placeholder="Paste your video URL here..."
+                disabled
+                placeholder="please click on the download button ..."
                 value={videoUrl}
                 onChange={(event) => setVideoUrl(event.target.value)}
                 onKeyDown={handleKeyDown}
@@ -60,8 +61,8 @@ export default function HeroSection() {
               />
               <button
                 type="button"
-                onClick={handleDownload}
-                disabled={!canDownload}
+              
+                disabled={canDownload}
                 className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90 disabled:opacity-50"
                 style={{ background: "#FF6B00" }}
               >
@@ -70,7 +71,7 @@ export default function HeroSection() {
             </div>
 
             <div className="flex flex-wrap gap-3 mt-6">
-              <span className="text-sm text-gray-500">Try:</span>
+           
               <button className="px-4 py-2 bg-white rounded-full text-sm font-medium shadow-sm hover:shadow transition" style={{ color: "#FF6B00" }}>
                 <i className="fab fa-youtube mr-1"></i> YouTube
               </button>
