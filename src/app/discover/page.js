@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { searchVideos } from "@/app/api/api";
+import { getPlaylistVideos, searchPlaylists, searchVideos } from "@/app/api/api";
 import Navbar from "@/components/sections/Navbar";
 import TopAlertBar from "@/components/sections/TopAlertBar";
 import Footer from "@/components/sections/Footer";
@@ -24,9 +24,14 @@ export default function DiscoverPage() {
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [videos, setVideos] = useState([]);
+  const [playlistResults, setPlaylistResults] = useState([]);
+  const [playlistVideos, setPlaylistVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [playingId, setPlayingId] = useState(null);
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [searchTab, setSearchTab] = useState("videos");
+  const [activePlaylist, setActivePlaylist] = useState(null);
 
   const activeLabel = useMemo(() => activeTab?.label || "Islamic", [activeTab]);
 
@@ -35,6 +40,10 @@ export default function DiscoverPage() {
     setError("");
     setVideos([]);
     setPlayingId(null);
+    setIsSearchMode(false);
+    setPlaylistResults([]);
+    setPlaylistVideos([]);
+    setActivePlaylist(null);
     try {
    
         const data = await searchVideos(tab.query);
@@ -54,9 +63,18 @@ export default function DiscoverPage() {
     setError("");
     setVideos([]);
     setPlayingId(null);
+    setIsSearchMode(true);
+    setSearchTab("videos");
+    setPlaylistResults([]);
+    setPlaylistVideos([]);
+    setActivePlaylist(null);
     try {
-      const data = await searchVideos(searchQuery.trim());
-      setVideos(data || []);
+      const [videoData, playlistData] = await Promise.all([
+        searchVideos(searchQuery.trim()),
+        searchPlaylists(searchQuery.trim()),
+      ]);
+      setVideos(videoData || []);
+      setPlaylistResults(playlistData || []);
     } catch (err) {
       setError(err?.message || "Search failed");
       setVideos([]);
@@ -118,110 +136,245 @@ export default function DiscoverPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {tabs.map((tab) => (
+            {!isSearchMode ? (
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border ${
+                      activeTab.id === tab.id ? "bg-orange-100" : "bg-white"
+                    }`}
+                    style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex gap-2">
                 <button
-                  key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setSearchTab("videos")}
                   className={`px-4 py-2 rounded-full text-sm font-semibold border ${
-                    activeTab.id === tab.id ? "bg-orange-100" : "bg-white"
+                    searchTab === "videos" ? "bg-orange-100" : "bg-white"
                   }`}
                   style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
                 >
-                  {tab.label}
+                  Videos
                 </button>
-              ))}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setSearchTab("playlists")}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold border ${
+                    searchTab === "playlists" ? "bg-orange-100" : "bg-white"
+                  }`}
+                  style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
+                >
+                  Playlists
+                </button>
+              </div>
+            )}
 
            
 
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Showing: {activeLabel}</p>
+              <p className="text-sm text-gray-500">
+                {isSearchMode ? `Search: ${searchQuery}` : `Showing: ${activeLabel}`}
+              </p>
               {isLoading ? <p className="text-sm text-gray-500">Loading...</p> : null}
             </div>
 
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {isLoading && videos.length === 0
-                ? Array.from({ length: 6 }).map((_, index) => (
-                    <div
-                      key={`skeleton-${index}`}
-                      className="bg-white rounded-2xl shadow-lg border animate-pulse"
-                      style={{ borderColor: "#FFE4D6" }}
-                    >
-                      <div className="w-full h-48 rounded-t-2xl bg-gray-200" />
-                      <div className="p-4 space-y-3">
-                        <div className="h-4 bg-gray-200 rounded w-3/4" />
-                        <div className="h-3 bg-gray-200 rounded w-1/3" />
-                        <div className="h-8 bg-gray-200 rounded w-1/2" />
+            {isSearchMode && searchTab === "playlists" ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {playlistResults.map((playlist) => (
+                  <div
+                    key={playlist.id}
+                    className="bg-white rounded-2xl shadow-lg border"
+                    style={{ borderColor: "#FFE4D6" }}
+                  >
+                    {playlist.thumbnail ? (
+                      <img
+                        src={playlist.thumbnail}
+                        alt={playlist.title || "Playlist"}
+                        className="w-full h-48 object-cover rounded-t-2xl"
+                      />
+                    ) : null}
+                    <div className="p-4">
+                      <p className="font-semibold text-gray-900 line-clamp-2">{playlist.title}</p>
+                      {playlist.video_count ? (
+                        <p className="text-sm text-gray-500 mt-1">{playlist.video_count} videos</p>
+                      ) : null}
+                      <div className="mt-4 flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenPlaylist(playlist)}
+                          className="px-4 py-2 text-white rounded-xl text-sm font-semibold"
+                          style={{ background: "#FF6B00" }}
+                        >
+                          Open Playlist
+                        </button>
                       </div>
                     </div>
-                  ))
-                : null}
-              {videos.map((video) => (
-                <div
-                  key={video.id || video.url}
-                  className="bg-white rounded-2xl shadow-lg border"
-                  style={{ borderColor: "#FFE4D6" }}
-                >
-                  {(() => {
-                    const videoId = getYouTubeId(video.url);
-                    const isPlaying = playingId && videoId && playingId === videoId;
-                    if (isPlaying) {
-                      return (
-                        <div className="relative w-full h-48 rounded-t-2xl overflow-hidden">
-                          <iframe
-                            className="absolute inset-0 w-full h-full"
-                            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`}
-                            title={video.title || "Video"}
-                            allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      );
-                    }
-                    return video.thumbnail ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (videoId) {
-                            setPlayingId(videoId);
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {isSearchMode && searchTab === "playlists" && activePlaylist ? (
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {activePlaylist.title}
+                </h2>
+                <div className="mt-4 grid gap-4">
+                  {playlistVideos.map((video) => (
+                    <div
+                      key={video.id || video.url}
+                      className="flex items-center justify-between gap-4 p-4 rounded-2xl border"
+                      style={{ borderColor: "#FFE4D6" }}
+                    >
+                      <div className="flex items-center gap-4">
+                        {(() => {
+                          const videoId = getYouTubeId(video.url);
+                          const isPlaying = playingId && videoId && playingId === videoId;
+                          if (isPlaying) {
+                            return (
+                              <div className="relative w-32 h-20 rounded-lg overflow-hidden">
+                                <iframe
+                                  className="absolute inset-0 w-full h-full"
+                                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`}
+                                  title={video.title || "Video"}
+                                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            );
                           }
-                        }}
-                        className="relative w-full h-48 rounded-t-2xl overflow-hidden"
-                        aria-label="Play video"
-                      >
-                        <img
-                          src={video.thumbnail}
-                          alt={video.title || "Video"}
-                          className="w-full h-48 object-cover"
-                        />
-                        <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-lg font-semibold">
-                          Play
-                        </span>
-                      </button>
-                    ) : null;
-                  })()}
-                  <div className="p-4">
-                    <p className="font-semibold text-gray-900 line-clamp-2">{video.title}</p>
-                    {video.views ? <p className="text-sm text-gray-500 mt-1">{video.views} views</p> : null}
-                    <div className="mt-4 flex gap-3">
+                          return video.thumbnail ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (videoId) {
+                                  setPlayingId(videoId);
+                                }
+                              }}
+                              className="relative w-32 h-20 rounded-lg overflow-hidden"
+                              aria-label="Play video"
+                            >
+                              <img
+                                src={video.thumbnail}
+                                alt={video.title || "Video"}
+                                className="w-32 h-20 object-cover"
+                              />
+                              <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-sm font-semibold">
+                                Play
+                              </span>
+                            </button>
+                          ) : null;
+                        })()}
+                        <div>
+                          <p className="font-semibold text-gray-900 line-clamp-1">{video.title}</p>
+                        </div>
+                      </div>
                       {video.url ? (
                         <Link
                           href={`/download?url=${encodeURIComponent(video.url)}`}
                           className="px-4 py-2 text-white rounded-xl text-sm font-semibold"
                           style={{ background: "#FF6B00" }}
                         >
-                          Get Formats
+                          Download
                         </Link>
                       ) : null}
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : null}
+
+            {!isSearchMode || searchTab === "videos" ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {isLoading && videos.length === 0
+                  ? Array.from({ length: 6 }).map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="bg-white rounded-2xl shadow-lg border animate-pulse"
+                        style={{ borderColor: "#FFE4D6" }}
+                      >
+                        <div className="w-full h-48 rounded-t-2xl bg-gray-200" />
+                        <div className="p-4 space-y-3">
+                          <div className="h-4 bg-gray-200 rounded w-3/4" />
+                          <div className="h-3 bg-gray-200 rounded w-1/3" />
+                          <div className="h-8 bg-gray-200 rounded w-1/2" />
+                        </div>
+                      </div>
+                    ))
+                  : null}
+                {videos.map((video) => (
+                  <div
+                    key={video.id || video.url}
+                    className="bg-white rounded-2xl shadow-lg border"
+                    style={{ borderColor: "#FFE4D6" }}
+                  >
+                    {(() => {
+                      const videoId = getYouTubeId(video.url);
+                      const isPlaying = playingId && videoId && playingId === videoId;
+                      if (isPlaying) {
+                        return (
+                          <div className="relative w-full h-48 rounded-t-2xl overflow-hidden">
+                            <iframe
+                              className="absolute inset-0 w-full h-full"
+                              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`}
+                              title={video.title || "Video"}
+                              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      }
+                      return video.thumbnail ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (videoId) {
+                              setPlayingId(videoId);
+                            }
+                          }}
+                          className="relative w-full h-48 rounded-t-2xl overflow-hidden"
+                          aria-label="Play video"
+                        >
+                          <img
+                            src={video.thumbnail}
+                            alt={video.title || "Video"}
+                            className="w-full h-48 object-cover"
+                          />
+                          <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-lg font-semibold">
+                            Play
+                          </span>
+                        </button>
+                      ) : null;
+                    })()}
+                    <div className="p-4">
+                      <p className="font-semibold text-gray-900 line-clamp-2">{video.title}</p>
+                      {video.views ? <p className="text-sm text-gray-500 mt-1">{video.views} views</p> : null}
+                      <div className="mt-4 flex gap-3">
+                        {video.url ? (
+                          <Link
+                            href={`/download?url=${encodeURIComponent(video.url)}`}
+                            className="px-4 py-2 text-white rounded-xl text-sm font-semibold"
+                            style={{ background: "#FF6B00" }}
+                          >
+                            Get Formats
+                          </Link>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -229,3 +382,18 @@ export default function DiscoverPage() {
     </main>
   );
 }
+  const handleOpenPlaylist = async (playlist) => {
+    if (!playlist?.id) return;
+    setIsLoading(true);
+    setError("");
+    setActivePlaylist(playlist);
+    setPlaylistVideos([]);
+    try {
+      const data = await getPlaylistVideos(playlist.id);
+      setPlaylistVideos(data || []);
+    } catch (err) {
+      setError(err?.message || "Failed to load playlist videos");
+    } finally {
+      setIsLoading(false);
+    }
+  };

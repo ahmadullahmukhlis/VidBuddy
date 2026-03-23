@@ -78,6 +78,17 @@ export const getTrendingVideos = async () => {
   return await parseJsonResponse(response);
 };
 
+export const searchPlaylists = async (query) => {
+  const response = await fetch(`${API_BASE}/playlists?q=${encodeURIComponent(query)}`);
+  return await parseJsonResponse(response);
+};
+
+export const getPlaylistVideos = async (playlistId) => {
+  const params = new URLSearchParams({ list: playlistId });
+  const response = await fetch(`${API_BASE}/playlist?${params.toString()}`);
+  return await parseJsonResponse(response);
+};
+
 export const getShorts = async (page = 1, perPage = 5) => {
   const params = new URLSearchParams({
     page: String(page),
