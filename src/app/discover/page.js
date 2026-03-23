@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {  searchVideos } from "@/app/api/api";
+import { searchVideos } from "@/app/api/api";
 import Navbar from "@/components/sections/Navbar";
 import TopAlertBar from "@/components/sections/TopAlertBar";
 import Footer from "@/components/sections/Footer";
 
 const tabs = [
-
+  { id: "islamic", label: "Islamic", type: "search", query: "islamic" },
   { id: "music", label: "Music", type: "search", query: "music" },
   { id: "movies", label: "Movies", type: "search", query: "movies" },
   { id: "gaming", label: "Gaming", type: "search", query: "gaming" },
@@ -27,7 +27,7 @@ export default function DiscoverPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const activeLabel = useMemo(() => activeTab?.label || "music", [activeTab]);
+  const activeLabel = useMemo(() => activeTab?.label || "Islamic", [activeTab]);
 
   const loadTab = useCallback(async (tab) => {
     setIsLoading(true);
@@ -73,9 +73,37 @@ export default function DiscoverPage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
           <div className="flex flex-col gap-6">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900">Discover</h1>
-              <p className="text-gray-600 mt-2"> music, movies, and more.</p>
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900">Discover</h1>
+                <p className="text-gray-600 mt-2">Music, movies, and more.</p>
+              </div>
+              <div
+                className="bg-white p-2 rounded-2xl shadow-xl flex flex-col sm:flex-row w-full lg:max-w-2xl primary-border"
+                style={{ border: "2px solid #FF6B00" }}
+              >
+                <input
+                  type="text"
+                  placeholder="Search videos..."
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      handleSearch();
+                    }
+                  }}
+                  className="flex-1 px-4 py-4 text-gray-800 outline-none rounded-xl sm:rounded-none sm:rounded-l-xl"
+                />
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90"
+                  style={{ background: "#FF6B00" }}
+                >
+                  Search
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -94,32 +122,7 @@ export default function DiscoverPage() {
               ))}
             </div>
 
-            <div
-              className="bg-white p-2 rounded-2xl shadow-xl flex flex-col sm:flex-row max-w-3xl primary-border"
-              style={{ border: "2px solid #FF6B00" }}
-            >
-              <input
-                type="text"
-                placeholder="Search videos..."
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    handleSearch();
-                  }
-                }}
-                className="flex-1 px-4 py-4 text-gray-800 outline-none rounded-xl sm:rounded-none sm:rounded-l-xl"
-              />
-              <button
-                type="button"
-                onClick={handleSearch}
-                className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90"
-                style={{ background: "#FF6B00" }}
-              >
-                Search
-              </button>
-            </div>
+           
 
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">Showing: {activeLabel}</p>
