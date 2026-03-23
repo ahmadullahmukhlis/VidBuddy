@@ -21,7 +21,7 @@ export default function Home() {
       <HowItWorksSection />
       <PlatformsSection />
       <StatsSection />
-      <PremiumSection />
+      {/* <PremiumSection /> */}
       <TestimonialsSection />
       <FaqSection />
       <CtaSection />

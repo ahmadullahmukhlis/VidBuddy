@@ -17,7 +17,7 @@ export default function PremiumPage() {
         highlight="unlimited power"
         description="Unlock faster downloads, premium formats, and priority support with VidBuddy Premium."
       />
-      <PremiumSection />
+      {/* <PremiumSection /> */}
       <FeaturesSection />
       <CtaSection />
       <Footer />
