@@ -20,6 +20,8 @@ export default function DownloadPage() {
   const [videoInfo, setVideoInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("video");
+  const [selectedFormatId, setSelectedFormatId] = useState(null);
   const encodedUrl = useMemo(() => encodeURIComponent(videoUrl.trim()), [videoUrl]);
   const canDownload = encodedUrl.length > 0;
 
@@ -30,6 +32,8 @@ export default function DownloadPage() {
     try {
       const data = await getDownloadInfo(videoUrl);
       setVideoInfo(data);
+      setSelectedFormatId(null);
+      setActiveTab("video");
     } catch (err) {
       setError(err?.message || "Failed to load video info");
       setVideoInfo(null);
@@ -43,6 +47,10 @@ export default function DownloadPage() {
     if (!downloadUrl) return;
     window.location.href = downloadUrl;
   };
+
+  const formats = videoInfo?.formats || [];
+  const videoFormats = formats.filter((format) => format.vcodec !== "none");
+  const audioFormats = formats.filter((format) => format.vcodec === "none");
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -103,23 +111,54 @@ export default function DownloadPage() {
                   <p className="text-sm text-gray-500">{videoInfo.duration}</p>
                 </div>
               </div>
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("video")}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold border ${activeTab === "video" ? "bg-orange-100" : "bg-white"}`}
+                  style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
+                >
+                  Video
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("audio")}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold border ${activeTab === "audio" ? "bg-orange-100" : "bg-white"}`}
+                  style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
+                >
+                  Audio
+                </button>
+              </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {videoInfo.formats?.map((format) => {
-                  const isAudioOnly = format.vcodec === "none";
+                {(activeTab === "video" ? videoFormats : audioFormats).map((format) => {
                   const label = `${format.quality} • ${format.ext} • ${format.filesize}`;
+                  const isSelected = selectedFormatId === format.format_id;
                   return (
                     <button
                       key={format.format_id}
                       type="button"
-                      onClick={() => handleFormatDownload(format.format_id)}
-                      className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border hover:shadow transition text-left"
-                      style={{ borderColor: "#FFE4D6" }}
+                      onClick={() => setSelectedFormatId(format.format_id)}
+                      className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl border transition text-left ${
+                        isSelected ? "shadow" : "hover:shadow"
+                      }`}
+                      style={{ borderColor: isSelected ? "#FF6B00" : "#FFE4D6" }}
                     >
                       <span className="text-sm font-medium text-gray-800">{label}</span>
-                      <span className="text-xs text-gray-500">{isAudioOnly ? "Audio" : "Video"}</span>
+                      <span className="text-xs text-gray-500">{activeTab === "audio" ? "Audio" : "Video"}</span>
                     </button>
                   );
                 })}
+              </div>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => handleFormatDownload(selectedFormatId)}
+                  disabled={!selectedFormatId}
+                  className="w-full py-3 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-50"
+                  style={{ background: "#FF6B00" }}
+                >
+                  Download Selected
+                </button>
               </div>
             </div>
           ) : null}
