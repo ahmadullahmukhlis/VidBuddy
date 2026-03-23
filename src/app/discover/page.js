@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getTrendingVideos, searchVideos } from "@/app/api/api";
+import {  searchVideos } from "@/app/api/api";
 import Navbar from "@/components/sections/Navbar";
 import TopAlertBar from "@/components/sections/TopAlertBar";
 import Footer from "@/components/sections/Footer";
 
 const tabs = [
-  { id: "trending", label: "Trending", type: "trending" },
+
   { id: "music", label: "Music", type: "search", query: "music" },
   { id: "movies", label: "Movies", type: "search", query: "movies" },
   { id: "gaming", label: "Gaming", type: "search", query: "gaming" },
@@ -27,20 +27,17 @@ export default function DiscoverPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const activeLabel = useMemo(() => activeTab?.label || "Trending", [activeTab]);
+  const activeLabel = useMemo(() => activeTab?.label || "music", [activeTab]);
 
   const loadTab = useCallback(async (tab) => {
     setIsLoading(true);
     setError("");
     setVideos([]);
     try {
-      if (tab.type == "trending") {
-        const data = await getTrendingVideos();
-        setVideos(data || []);
-      } else {
+   
         const data = await searchVideos(tab.query);
         setVideos(data || []);
-      }
+    
     } catch (err) {
       setError(err?.message || "Failed to load videos");
       setVideos([]);
@@ -78,7 +75,7 @@ export default function DiscoverPage() {
           <div className="flex flex-col gap-6">
             <div>
               <h1 className="text-4xl font-bold text-gray-900">Discover</h1>
-              <p className="text-gray-600 mt-2">Trending, music, movies, and more.</p>
+              <p className="text-gray-600 mt-2"> music, movies, and more.</p>
             </div>
 
             <div className="flex flex-wrap gap-2">
