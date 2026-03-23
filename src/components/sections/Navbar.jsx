@@ -16,11 +16,8 @@ export default function Navbar() {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <div
-              className="w-12 h-12 rounded-xl primary-bg flex items-center justify-center shadow-lg"
-              style={{ background: "#FF6B00" }}
-            >
-              <img src="/logo.png" alt="VidBuddy Logo" className="w-8 h-8 object-contain" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
+              <img src="/logo.png" alt="VidBuddy Logo" className="w-10 h-10 object-contain" />
             </div>
             <span className="text-2xl font-bold text-gray-800">
               Vid<span style={{ color: "#FF6B00" }}>Buddy</span>
