@@ -168,7 +168,8 @@ export default function DiscoverPage() {
                 >
                   {(() => {
                     const videoId = getYouTubeId(video.url);
-                    if (playingId && videoId && playingId === videoId) {
+                    const isPlaying = playingId && videoId && playingId === videoId;
+                    if (isPlaying) {
                       return (
                         <div className="relative w-full h-48 rounded-t-2xl overflow-hidden">
                           <iframe
@@ -182,32 +183,31 @@ export default function DiscoverPage() {
                       );
                     }
                     return video.thumbnail ? (
-                      <img
-                        src={video.thumbnail}
-                        alt={video.title || "Video"}
-                        className="w-full h-48 object-cover rounded-t-2xl"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (videoId) {
+                            setPlayingId(videoId);
+                          }
+                        }}
+                        className="relative w-full h-48 rounded-t-2xl overflow-hidden"
+                        aria-label="Play video"
+                      >
+                        <img
+                          src={video.thumbnail}
+                          alt={video.title || "Video"}
+                          className="w-full h-48 object-cover"
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-lg font-semibold">
+                          Play
+                        </span>
+                      </button>
                     ) : null;
                   })()}
                   <div className="p-4">
                     <p className="font-semibold text-gray-900 line-clamp-2">{video.title}</p>
                     {video.views ? <p className="text-sm text-gray-500 mt-1">{video.views} views</p> : null}
                     <div className="mt-4 flex gap-3">
-                      {(() => {
-                        const videoId = getYouTubeId(video.url);
-                        if (!videoId) return null;
-                        const isPlaying = playingId === videoId;
-                        return (
-                          <button
-                            type="button"
-                            onClick={() => setPlayingId(isPlaying ? null : videoId)}
-                            className="px-4 py-2 rounded-xl text-sm font-semibold border"
-                            style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
-                          >
-                            {isPlaying ? "Stop" : "Play"}
-                          </button>
-                        );
-                      })()}
                       {video.url ? (
                         <Link
                           href={`/download?url=${encodeURIComponent(video.url)}`}
