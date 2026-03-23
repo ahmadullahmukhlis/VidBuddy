@@ -46,24 +46,24 @@ export default function Navbar() {
             <Link href="/supported-sites" className={linkClass("/supported-sites")}>
               Supported Sites
             </Link>
-            <Link href="/premium" className={linkClass("/premium")}>
+            {/* <Link href="/premium" className={linkClass("/premium")}>
               Premium
-            </Link>
+            </Link> */}
             <Link href="/faq" className={linkClass("/faq")}>
               FAQ
             </Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link href="/login" className="px-5 py-2.5 text-gray-700 hover:text-[#FF6B00] font-medium transition">
+            {/* <Link href="/login" className="px-5 py-2.5 text-gray-700 hover:text-[#FF6B00] font-medium transition">
               Login
-            </Link>
+            </Link> */}
             <Link
               href="/download"
               className="px-6 py-2.5 text-white rounded-xl font-semibold transition shadow-lg hover:shadow-xl"
               style={{ background: "#FF6B00" }}
             >
-              Download App <i className="fas fa-arrow-right ml-2 text-sm"></i>
+               <i className="fas fa-download ml-2 text-xl"></i>
             </Link>
           </div>
         </div>
