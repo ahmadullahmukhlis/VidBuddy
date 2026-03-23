@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { buildDownloadUrl, getDownloadInfo } from "@/app/api/api";
 import CtaSection from "@/components/sections/CtaSection";
 import Footer from "@/components/sections/Footer";
 import Navbar from "@/components/sections/Navbar";
@@ -16,12 +17,31 @@ const downloads = [
 
 export default function DownloadPage() {
   const [videoUrl, setVideoUrl] = useState("");
+  const [videoInfo, setVideoInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const encodedUrl = useMemo(() => encodeURIComponent(videoUrl.trim()), [videoUrl]);
   const canDownload = encodedUrl.length > 0;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!canDownload) return;
-    window.location.href = `/api/download?url=${encodedUrl}`;
+    setIsLoading(true);
+    setError("");
+    try {
+      const data = await getDownloadInfo(videoUrl);
+      setVideoInfo(data);
+    } catch (err) {
+      setError(err?.message || "Failed to load video info");
+      setVideoInfo(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFormatDownload = (formatId) => {
+    const downloadUrl = buildDownloadUrl(videoUrl, formatId);
+    if (!downloadUrl) return;
+    window.location.href = downloadUrl;
   };
 
   const handleKeyDown = (event) => {
@@ -58,13 +78,51 @@ export default function DownloadPage() {
             <button
               type="button"
               onClick={handleDownload}
-              disabled={!canDownload}
+              disabled={!canDownload || isLoading}
               className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90 disabled:opacity-50"
               style={{ background: "#FF6B00" }}
             >
-              Download Now <i className="fas fa-download ml-2"></i>
+              {isLoading ? "Loading..." : "Download Now"} <i className="fas fa-download ml-2"></i>
             </button>
           </div>
+          {error ? (
+            <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
+          ) : null}
+          {videoInfo ? (
+            <div className="mt-6 bg-white p-4 rounded-2xl shadow-lg max-w-3xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                {videoInfo.thumbnail ? (
+                  <img
+                    src={videoInfo.thumbnail}
+                    alt={videoInfo.title || "Video thumbnail"}
+                    className="w-full sm:w-40 rounded-xl object-cover"
+                  />
+                ) : null}
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">{videoInfo.title}</p>
+                  <p className="text-sm text-gray-500">{videoInfo.duration}</p>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {videoInfo.formats?.map((format) => {
+                  const isAudioOnly = format.vcodec === "none";
+                  const label = `${format.quality} • ${format.ext} • ${format.filesize}`;
+                  return (
+                    <button
+                      key={format.format_id}
+                      type="button"
+                      onClick={() => handleFormatDownload(format.format_id)}
+                      className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border hover:shadow transition text-left"
+                      style={{ borderColor: "#FFE4D6" }}
+                    >
+                      <span className="text-sm font-medium text-gray-800">{label}</span>
+                      <span className="text-xs text-gray-500">{isAudioOnly ? "Audio" : "Video"}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {downloads.map((item) => (
               <div key={item.name} className="gradient-card p-8 rounded-2xl border hover-scale" style={{ borderColor: "#FFE4D6" }}>

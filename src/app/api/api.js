@@ -1,11 +1,29 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
 
+const parseJsonResponse = async (response) => {
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.error || 'Request failed');
+  }
+  return data;
+};
+
+export const buildDownloadUrl = (videoUrl, formatId) => {
+  const trimmedUrl = videoUrl?.trim();
+  if (!trimmedUrl) return null;
+  const params = new URLSearchParams({ url: trimmedUrl });
+  if (formatId) {
+    params.set('format_id', formatId);
+  }
+  return `${API_BASE}/download?${params.toString()}`;
+};
+
 /**
  * Search YouTube using the Laravel Backend
  */
 export const searchVideos = async (query) => {
   const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
-  return await response.json();
+  return await parseJsonResponse(response);
 };
 
 /**
@@ -17,5 +35,5 @@ export const getDownloadInfo = async (videoUrl) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url: videoUrl }),
   });
-  return await response.json();
+  return await parseJsonResponse(response);
 };
