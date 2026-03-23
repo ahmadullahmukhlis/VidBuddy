@@ -205,106 +205,114 @@ export default function DiscoverPage() {
             {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
             {isSearchMode && searchTab === "playlists" ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {playlistResults.map((playlist) => (
-                  <div
-                    key={playlist.id}
-                    className="bg-white rounded-2xl shadow-lg border cursor-pointer transition hover:shadow-xl"
-                    style={{ borderColor: "#FFE4D6" }}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleOpenPlaylist(playlist)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        handleOpenPlaylist(playlist);
-                      }
-                    }}
-                  >
-                    {playlist.thumbnail ? (
-                      <img
-                        src={playlist.thumbnail}
-                        alt={playlist.title || "Playlist"}
-                        className="w-full h-48 object-cover rounded-t-2xl"
-                      />
-                    ) : null}
-                    <div className="p-4">
-                      <p className="font-semibold text-gray-900 line-clamp-2">{playlist.title}</p>
-                      {playlist.video_count ? (
-                        <p className="text-sm text-gray-500 mt-1">{playlist.video_count} videos</p>
-                      ) : null}
-                      <p className="text-sm text-gray-500 mt-4">Click to open playlist</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-
-            {isSearchMode && searchTab === "playlists" && activePlaylist ? (
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {activePlaylist.title}
-                </h2>
-                <div className="mt-4 grid gap-4">
-                  {playlistVideos.map((video) => (
+              <div className="grid gap-6 lg:grid-cols-3">
+                <div className="space-y-4 lg:col-span-1">
+                  {playlistResults.map((playlist) => (
                     <div
-                      key={video.id || video.url}
-                      className="flex items-center justify-between gap-4 p-4 rounded-2xl border"
+                      key={playlist.id}
+                      className={`bg-white rounded-2xl shadow-lg border cursor-pointer transition hover:shadow-xl ${
+                        activePlaylist?.id === playlist.id ? "ring-2 ring-[#FF6B00]" : ""
+                      }`}
                       style={{ borderColor: "#FFE4D6" }}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleOpenPlaylist(playlist)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          handleOpenPlaylist(playlist);
+                        }
+                      }}
                     >
-                      <div className="flex items-center gap-4">
-                        {(() => {
-                          const videoId = getYouTubeId(video.url);
-                          const isPlaying = playingId && videoId && playingId === videoId;
-                          if (isPlaying) {
-                            return (
-                              <div className="relative w-32 h-20 rounded-lg overflow-hidden">
-                                <iframe
-                                  className="absolute inset-0 w-full h-full"
-                                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`}
-                                  title={video.title || "Video"}
-                                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                />
-                              </div>
-                            );
-                          }
-                          return video.thumbnail ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (videoId) {
-                                  setPlayingId(videoId);
-                                }
-                              }}
-                              className="relative w-32 h-20 rounded-lg overflow-hidden"
-                              aria-label="Play video"
-                            >
-                              <img
-                                src={video.thumbnail}
-                                alt={video.title || "Video"}
-                                className="w-32 h-20 object-cover"
-                              />
-                              <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-sm font-semibold">
-                                Play
-                              </span>
-                            </button>
-                          ) : null;
-                        })()}
-                        <div>
-                          <p className="font-semibold text-gray-900 line-clamp-1">{video.title}</p>
-                        </div>
-                      </div>
-                      {video.url ? (
-                        <Link
-                          href={`/download?url=${encodeURIComponent(video.url)}`}
-                          className="px-4 py-2 text-white rounded-xl text-sm font-semibold"
-                          style={{ background: "#FF6B00" }}
-                        >
-                          Download
-                        </Link>
+                      {playlist.thumbnail ? (
+                        <img
+                          src={playlist.thumbnail}
+                          alt={playlist.title || "Playlist"}
+                          className="w-full h-40 object-cover rounded-t-2xl"
+                        />
                       ) : null}
+                      <div className="p-4">
+                        <p className="font-semibold text-gray-900 line-clamp-2">{playlist.title}</p>
+                        {playlist.video_count ? (
+                          <p className="text-sm text-gray-500 mt-1">{playlist.video_count} videos</p>
+                        ) : null}
+                      </div>
                     </div>
                   ))}
+                </div>
+                <div className="lg:col-span-2">
+                  {activePlaylist ? (
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">
+                        {activePlaylist.title}
+                      </h2>
+                      <div className="mt-4 grid gap-4">
+                        {playlistVideos.map((video) => (
+                          <div
+                            key={video.id || video.url}
+                            className="flex items-center justify-between gap-4 p-4 rounded-2xl border"
+                            style={{ borderColor: "#FFE4D6" }}
+                          >
+                            <div className="flex items-center gap-4">
+                              {(() => {
+                                const videoId = getYouTubeId(video.url);
+                                const isPlaying = playingId && videoId && playingId === videoId;
+                                if (isPlaying) {
+                                  return (
+                                    <div className="relative w-32 h-20 rounded-lg overflow-hidden">
+                                      <iframe
+                                        className="absolute inset-0 w-full h-full"
+                                        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`}
+                                        title={video.title || "Video"}
+                                        allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                      />
+                                    </div>
+                                  );
+                                }
+                                return video.thumbnail ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (videoId) {
+                                        setPlayingId(videoId);
+                                      }
+                                    }}
+                                    className="relative w-32 h-20 rounded-lg overflow-hidden"
+                                    aria-label="Play video"
+                                  >
+                                    <img
+                                      src={video.thumbnail}
+                                      alt={video.title || "Video"}
+                                      className="w-32 h-20 object-cover"
+                                    />
+                                    <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-sm font-semibold">
+                                      Play
+                                    </span>
+                                  </button>
+                                ) : null;
+                              })()}
+                              <div>
+                                <p className="font-semibold text-gray-900 line-clamp-1">{video.title}</p>
+                              </div>
+                            </div>
+                            {video.url ? (
+                              <Link
+                                href={`/download?url=${encodeURIComponent(video.url)}`}
+                                className="px-4 py-2 text-white rounded-xl text-sm font-semibold"
+                                style={{ background: "#FF6B00" }}
+                              >
+                                Download
+                              </Link>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-gray-500">
+                      Select a playlist to view videos
+                    </div>
+                  )}
                 </div>
               </div>
             ) : null}
