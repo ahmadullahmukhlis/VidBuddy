@@ -15,10 +15,8 @@ export default function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
-              <img src="/logo.png" alt="VidBuddy Logo" className="w-10 h-10 object-contain" />
-            </div>
+          <Link href="/" className="flex items-center space-x-1.5">
+            <img src="/logo.png" alt="VidBuddy Logo" className="h-12 w-auto object-contain" />
             <span className="text-2xl font-bold text-gray-800">
               Vid<span style={{ color: "#FF6B00" }}>Buddy</span>
             </span>
@@ -57,7 +55,7 @@ export default function Navbar() {
             </Link> */}
             <Link
               href="/download"
-              className="px-6 py-2.5 text-white rounded-xl font-semibold transition shadow-lg hover:shadow-xl"
+              className="px-3 py-2.5 text-white rounded-xl font-semibold transition shadow-lg hover:shadow-xl"
               style={{ background: "#FF6B00" }}
             >
                <i className="fas fa-download ml-2 text-xl"></i>
