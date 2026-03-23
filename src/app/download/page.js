@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildDownloadUrl, getDownloadInfo } from "@/app/api/api";
+import { buildDownloadUrl, getDownloadInfo, showDownloadToast, triggerDownload } from "@/app/api/api";
 import CtaSection from "@/components/sections/CtaSection";
 import Footer from "@/components/sections/Footer";
 import Navbar from "@/components/sections/Navbar";
@@ -53,7 +53,8 @@ export default function DownloadPage() {
   const handleFormatDownload = (formatId) => {
     const downloadUrl = buildDownloadUrl(videoUrl, formatId);
     if (!downloadUrl) return;
-    window.location.href = downloadUrl;
+    showDownloadToast();
+    triggerDownload(downloadUrl);
   };
 
   const formats = videoInfo?.formats || [];

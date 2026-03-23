@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { buildDownloadUrl, getDownloadInfo } from "@/app/api/api";
+import { buildDownloadUrl, getDownloadInfo, showDownloadToast, triggerDownload } from "@/app/api/api";
 
 export default function HeroSection() {
   const [videoUrl, setVideoUrl] = useState("");
@@ -33,7 +33,8 @@ export default function HeroSection() {
   const handleFormatDownload = (formatId) => {
     const downloadUrl = buildDownloadUrl(videoUrl, formatId);
     if (!downloadUrl) return;
-    window.location.href = downloadUrl;
+    showDownloadToast();
+    triggerDownload(downloadUrl);
   };
 
   const formats = videoInfo?.formats || [];

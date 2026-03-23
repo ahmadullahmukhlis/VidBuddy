@@ -18,6 +18,44 @@ export const buildDownloadUrl = (videoUrl, formatId) => {
   return `${API_BASE}/download?${params.toString()}`;
 };
 
+export const triggerDownload = (downloadUrl) => {
+  if (!downloadUrl || typeof document === 'undefined') return;
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = downloadUrl;
+  document.body.appendChild(iframe);
+  setTimeout(() => {
+    iframe.remove();
+  }, 10000);
+};
+
+export const showDownloadToast = () => {
+  if (typeof document === 'undefined') return;
+  const existing = document.getElementById('download-toast');
+  if (existing) return;
+  const toast = document.createElement('div');
+  toast.id = 'download-toast';
+  toast.textContent = 'Downloading...';
+  toast.style.position = 'fixed';
+  toast.style.right = '20px';
+  toast.style.bottom = '20px';
+  toast.style.background = '#FF6B00';
+  toast.style.color = '#fff';
+  toast.style.padding = '12px 16px';
+  toast.style.borderRadius = '12px';
+  toast.style.boxShadow = '0 10px 20px rgba(0,0,0,0.15)';
+  toast.style.fontWeight = '600';
+  toast.style.zIndex = '9999';
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s ease';
+  }, 1200);
+  setTimeout(() => {
+    toast.remove();
+  }, 1600);
+};
+
 /**
  * Search YouTube using the Laravel Backend
  */
