@@ -26,6 +26,7 @@ export default function DiscoverPage() {
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [playingId, setPlayingId] = useState(null);
 
   const activeLabel = useMemo(() => activeTab?.label || "Islamic", [activeTab]);
 
@@ -33,6 +34,7 @@ export default function DiscoverPage() {
     setIsLoading(true);
     setError("");
     setVideos([]);
+    setPlayingId(null);
     try {
    
         const data = await searchVideos(tab.query);
@@ -51,6 +53,7 @@ export default function DiscoverPage() {
     setIsLoading(true);
     setError("");
     setVideos([]);
+    setPlayingId(null);
     try {
       const data = await searchVideos(searchQuery.trim());
       setVideos(data || []);
@@ -65,6 +68,15 @@ export default function DiscoverPage() {
   useEffect(() => {
     loadTab(activeTab);
   }, [activeTab, loadTab]);
+
+  const getYouTubeId = (url) => {
+    if (!url) return null;
+    const match =
+      url.match(/[?&]v=([^&#]+)/) ||
+      url.match(/youtu\.be\/([^?&#]+)/) ||
+      url.match(/youtube\.com\/shorts\/([^?&#]+)/);
+    return match ? match[1] : null;
+  };
 
   return (
     <main>
@@ -154,17 +166,48 @@ export default function DiscoverPage() {
                   className="bg-white rounded-2xl shadow-lg border"
                   style={{ borderColor: "#FFE4D6" }}
                 >
-                  {video.thumbnail ? (
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title || "Video"}
-                      className="w-full h-48 object-cover rounded-t-2xl"
-                    />
-                  ) : null}
+                  {(() => {
+                    const videoId = getYouTubeId(video.url);
+                    if (playingId && videoId && playingId === videoId) {
+                      return (
+                        <div className="relative w-full h-48 rounded-t-2xl overflow-hidden">
+                          <iframe
+                            className="absolute inset-0 w-full h-full"
+                            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&playsinline=1`}
+                            title={video.title || "Video"}
+                            allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      );
+                    }
+                    return video.thumbnail ? (
+                      <img
+                        src={video.thumbnail}
+                        alt={video.title || "Video"}
+                        className="w-full h-48 object-cover rounded-t-2xl"
+                      />
+                    ) : null;
+                  })()}
                   <div className="p-4">
                     <p className="font-semibold text-gray-900 line-clamp-2">{video.title}</p>
                     {video.views ? <p className="text-sm text-gray-500 mt-1">{video.views} views</p> : null}
                     <div className="mt-4 flex gap-3">
+                      {(() => {
+                        const videoId = getYouTubeId(video.url);
+                        if (!videoId) return null;
+                        const isPlaying = playingId === videoId;
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => setPlayingId(isPlaying ? null : videoId)}
+                            className="px-4 py-2 rounded-xl text-sm font-semibold border"
+                            style={{ borderColor: "#FFE4D6", color: "#FF6B00" }}
+                          >
+                            {isPlaying ? "Stop" : "Play"}
+                          </button>
+                        );
+                      })()}
                       {video.url ? (
                         <Link
                           href={`/download?url=${encodeURIComponent(video.url)}`}
