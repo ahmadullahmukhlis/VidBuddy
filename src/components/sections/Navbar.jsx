@@ -20,7 +20,7 @@ export default function Navbar() {
               className="w-12 h-12 rounded-xl primary-bg flex items-center justify-center shadow-lg"
               style={{ background: "#FF6B00" }}
             >
-              <i className="fas fa-download text-white text-xl"></i>
+              <img src="/logo.png" alt="VidBuddy Logo" className="w-8 h-8 object-contain" />
             </div>
             <span className="text-2xl font-bold text-gray-800">
               Vid<span style={{ color: "#FF6B00" }}>Buddy</span>

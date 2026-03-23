@@ -58,7 +58,16 @@ export default function DiscoverPage() {
   }, []);
 
   const handleSearch = useCallback(async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setIsSearchMode(false);
+      setSearchTab("videos");
+      setPlaylistResults([]);
+      setPlaylistVideos([]);
+      setActivePlaylist(null);
+      setPlayingId(null);
+      loadTab(activeTab);
+      return;
+    }
     setIsLoading(true);
     setError("");
     setVideos([]);
@@ -153,7 +162,7 @@ export default function DiscoverPage() {
             </div>
 
             {!isSearchMode ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-2">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -169,7 +178,7 @@ export default function DiscoverPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-2">
                 <button
                   type="button"
                   onClick={() => setSearchTab("videos")}

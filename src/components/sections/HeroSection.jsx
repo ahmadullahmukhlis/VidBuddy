@@ -53,7 +53,7 @@ export default function HeroSection() {
       className="relative overflow-hidden"
       style={{ background: "linear-gradient(135deg, #FFF1E6 0%, #FFE4D6 100%)" }}
     >
-      <div className="container mx-auto px-6 py-20">
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="lg:w-1/2">
             <span
@@ -64,19 +64,19 @@ export default function HeroSection() {
               Trusted by 50M+ Users Worldwide
             </span>
 
-            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-gray-900 leading-tight mb-5 sm:mb-6">
               Download Any Video
               <br />
               With <span style={{ color: "#FF6B00" }}>Lightning Speed</span>
             </h1>
 
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8">
               The fastest and most reliable video downloader. Support for 1000+ platforms including YouTube,
               Facebook, Instagram, and more.
             </p>
 
             <div
-              className="bg-white p-2 rounded-2xl shadow-xl flex flex-col sm:flex-row max-w-2xl primary-border"
+              className="bg-white p-2 rounded-2xl shadow-xl flex flex-col gap-3 sm:gap-0 sm:flex-row max-w-2xl primary-border"
               style={{ border: "2px solid #FF6B00" }}
             >
               <input
@@ -92,7 +92,7 @@ export default function HeroSection() {
                 type="button"
                 onClick={handleDownload}
                 disabled={!canDownload || isLoading}
-                className="px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90 disabled:opacity-50"
+                className="w-full sm:w-auto px-8 py-4 text-white font-semibold rounded-xl sm:rounded-none sm:rounded-r-xl transition hover:opacity-90 disabled:opacity-50"
                 style={{ background: "#FF6B00" }}
               >
                 {isLoading ? "Loading..." : "Download Now"} <i className="fas fa-download ml-2"></i>
