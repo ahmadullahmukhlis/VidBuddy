@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildDownloadUrl, getDownloadInfo } from "@/app/api/api";
 import CtaSection from "@/components/sections/CtaSection";
 import Footer from "@/components/sections/Footer";
 import Navbar from "@/components/sections/Navbar";
 import PageHero from "@/components/sections/PageHero";
 import TopAlertBar from "@/components/sections/TopAlertBar";
+import { useSearchParams } from "next/navigation";
 
 const downloads = [
   { name: "Windows", icon: "fa-windows", description: "Windows 10 and later" },
@@ -16,21 +17,23 @@ const downloads = [
 ];
 
 export default function DownloadPage() {
+  const searchParams = useSearchParams();
   const [videoUrl, setVideoUrl] = useState("");
   const [videoInfo, setVideoInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("video");
   const [selectedFormatId, setSelectedFormatId] = useState(null);
+  const hasLoadedFromQuery = useRef(false);
   const encodedUrl = useMemo(() => encodeURIComponent(videoUrl.trim()), [videoUrl]);
   const canDownload = encodedUrl.length > 0;
 
-  const handleDownload = async () => {
-    if (!canDownload) return;
+  const loadVideoInfo = useCallback(async (url) => {
+    if (!url?.trim()) return;
     setIsLoading(true);
     setError("");
     try {
-      const data = await getDownloadInfo(videoUrl);
+      const data = await getDownloadInfo(url);
       setVideoInfo(data);
       setSelectedFormatId(null);
       setActiveTab("video");
@@ -40,6 +43,11 @@ export default function DownloadPage() {
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  const handleDownload = async () => {
+    if (!canDownload) return;
+    await loadVideoInfo(videoUrl);
   };
 
   const handleFormatDownload = (formatId) => {
@@ -51,6 +59,15 @@ export default function DownloadPage() {
   const formats = videoInfo?.formats || [];
   const videoFormats = formats.filter((format) => format.vcodec !== "none");
   const audioFormats = formats.filter((format) => format.vcodec === "none");
+
+  useEffect(() => {
+    if (hasLoadedFromQuery.current) return;
+    const url = searchParams.get("url");
+    if (!url) return;
+    hasLoadedFromQuery.current = true;
+    setVideoUrl(url);
+    loadVideoInfo(url);
+  }, [loadVideoInfo, searchParams]);
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {

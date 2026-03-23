@@ -26,6 +26,11 @@ export const searchVideos = async (query) => {
   return await parseJsonResponse(response);
 };
 
+export const getTrendingVideos = async () => {
+  const response = await fetch(`${API_BASE}/trending`);
+  return await parseJsonResponse(response);
+};
+
 /**
  * Get download links for any social media URL (YouTube, TikTok, etc.)
  */
