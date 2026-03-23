@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildDownloadUrl, getShorts, showDownloadToast, triggerDownload } from "@/app/api/api";
+import { buildDownloadUrl, getShorts, startDownloadWithToast } from "@/app/api/api";
 import Navbar from "@/components/sections/Navbar";
 import TopAlertBar from "@/components/sections/TopAlertBar";
 import Footer from "@/components/sections/Footer";
@@ -58,8 +58,7 @@ export default function ShortsPage() {
   const handleDownload = (videoUrl) => {
     const downloadUrl = buildDownloadUrl(videoUrl);
     if (!downloadUrl) return;
-    showDownloadToast();
-    triggerDownload(downloadUrl);
+    startDownloadWithToast(downloadUrl);
   };
 
   const skeletons = useMemo(() => Array.from({ length: SKELETON_COUNT }), []);

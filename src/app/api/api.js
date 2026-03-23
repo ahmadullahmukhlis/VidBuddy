@@ -29,17 +29,17 @@ export const triggerDownload = (downloadUrl) => {
   }, 10000);
 };
 
-export const showDownloadToast = () => {
+const showToast = (message, variant = 'info') => {
   if (typeof document === 'undefined') return;
   const existing = document.getElementById('download-toast');
   if (existing) return;
   const toast = document.createElement('div');
   toast.id = 'download-toast';
-  toast.textContent = 'Downloading...';
+  toast.textContent = message;
   toast.style.position = 'fixed';
   toast.style.right = '20px';
   toast.style.bottom = '20px';
-  toast.style.background = '#FF6B00';
+  toast.style.background = variant === 'error' ? '#DC2626' : '#FF6B00';
   toast.style.color = '#fff';
   toast.style.padding = '12px 16px';
   toast.style.borderRadius = '12px';
@@ -54,6 +54,15 @@ export const showDownloadToast = () => {
   setTimeout(() => {
     toast.remove();
   }, 1600);
+};
+
+export const startDownloadWithToast = (downloadUrl) => {
+  if (!downloadUrl) return;
+  showToast('Download started');
+  triggerDownload(downloadUrl);
+  setTimeout(() => {
+    showToast('If download did not start, try again', 'error');
+  }, 6000);
 };
 
 /**
