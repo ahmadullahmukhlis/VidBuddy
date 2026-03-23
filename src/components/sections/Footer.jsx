@@ -5,8 +5,8 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 rounded-xl" style={{ background: "#FF6B00" }}>
-                <i className="fas fa-download text-white text-xl flex items-center justify-center h-full"></i>
+              <div className="w-10 h-10 rounded-xl" >
+                      <img src="/logo.png" alt="VidBuddy Logo" className="h-8 w-auto object-contain" />
               </div>
               <span className="text-2xl font-bold">
                 Vid<span style={{ color: "#FF6B00" }}>Buddy</span>
